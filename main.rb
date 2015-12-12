@@ -2,6 +2,7 @@ require 'rubygems'
 require 'active_support'
 require 'active_support/core_ext'
 require 'aws-sdk'
+require "slack-notifier"
 require './crawler'
 
 s3 = Aws::S3::Resource.new
@@ -22,4 +23,8 @@ Dir[File.expand_path('./crawler/*.rb')].each do |path|
     puts "#{line_name}: upload index.html..."
     upload_html
   end
+end
+
+if ENV['WEBHOOK_URL']
+  Slack::Notifier.new(ENV['WEBHOOK_URL']).ping("遅延証明更新されたよー")
 end
