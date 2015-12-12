@@ -2,6 +2,9 @@ require "selenium-webdriver"
 require "slim"
 
 class Crawler
+
+  SCREENSHOT_EXT = '.png'
+
   attr_reader :bucket
   class ParseError < StandardError; end
 
@@ -15,14 +18,14 @@ class Crawler
     crawl.each do |(filename, uri)|
       puts filename
       @driver.get(uri.to_s)
-      @driver.save_screenshot(File.join(tmpdir, "#{filename}.png"))
+      @driver.save_screenshot(File.join(tmpdir, "#{filename}#{SCREENSHOT_EXT}"))
 
       sleep(1)
     end
   end
 
   def upload_screenshots
-    Dir.glob(File.join(__dir__, 'tmp', line_name, '*.png')).each do |path|
+    Dir.glob(File.join(__dir__, 'tmp', line_name, "*#{SCREENSHOT_EXT}")).each do |path|
       puts "#{line_name}: upload #{File.basename(path)}..."
       File.open(path, 'r') do |file|
         bucket.put_object(
@@ -51,7 +54,7 @@ class Crawler
   end
 
   def bucketed_screenshots
-    bucket.objects.map{ |obj| File.basename(obj.key) }.delete_if{ |name| name =~ /index.html/ }.sort.reverse
+    bucket.objects.map{ |obj| File.basename(obj.key) }.select{ |name| File.extname(name) == SCREENSHOT_EXT }.sort.reverse
   end
 
   def tmpdir
