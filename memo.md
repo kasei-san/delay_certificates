@@ -7,21 +7,21 @@ heroku create
 heroku config:set BUILDPACK_URL=https://github.com/ddollar/heroku-buildpack-multi.git
 ```
 
-# .buildpacks を作る
+## .buildpacks を作る
 
 ```.buildpacks
 https://github.com/heroku/heroku-buildpack-ruby
 https://github.com/stomita/heroku-buildpack-phantomjs
 ```
 
-# PATHを切る
+## PATHを切る
 
 ```
 heroku config:set PATH="/usr/local/bin:/usr/bin:/bin:/app/vendor/phantomjs/bin"
 heroku config:set LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/lib:/app/vendor/phantomjs/lib
 ```
 
-# その他環境変数を設定
+## その他環境変数を設定
 
 ```
 heroku config:set AWS_ACCESS_KEY=*********
