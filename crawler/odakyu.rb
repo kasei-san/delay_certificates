@@ -7,7 +7,7 @@ class Odakyu < Crawler
   BASE_URI = 'http://www.odakyu.jp/program/emg/'
 
   def crawl
-    URI.parse(BASE_URI).read.scan(%r|certificate\d+.html|).sort.uniq.each do |path|
+    URI.parse(BASE_URI).read.scan(%r|certificate\d+.html|).sort.uniq.map do |path|
       uri = URI.join(BASE_URI, path)
       html = NKF.nkf('-w', uri.read)
       text = html.gsub(/<[^<]+>/,'').gsub(/\s+/, ' ')
@@ -22,15 +22,13 @@ class Odakyu < Crawler
         raise ParseError, '遅延時間帯を取得できませんでした'
       end
       filename << [match[:start], match[:end]].map{|v| v.sub(':', '')}.join('-')
-      filename = filename.join('_')+'.png'
-      filename = filename.sub('初電', '0000').sub('終電', '9999')
+      unless match = /上下区分 : (?<updown>[^ ]+)/.match(text)
+        raise ParseError, '上下区分を取得できませんでした'
+      end
+      filename << (match[:updown] =~ /上/ ? 'nobori' : 'kudari')
 
-      puts filename
-
-      @driver.get(uri.to_s)
-      @driver.save_screenshot(File.join(tmpdir, filename))
-
-      sleep(1)
+      filename = filename.join('_').sub('初電', '0000').sub('終電', '9999')
+      [filename, uri.to_s]
     end
   end
 end
