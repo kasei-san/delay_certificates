@@ -9,6 +9,6 @@ class Crawler
   end
 
   def tmpdir
-    File.join(__dir__, '..', 'tmp', self.class.to_s.underscore)
+    File.join(__dir__, 'tmp', self.class.to_s.underscore)
   end
 end
