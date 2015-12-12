@@ -11,7 +11,8 @@ Dir[File.expand_path('./crawler/*.rb')].each do |path|
   require path
   File.basename(path, '.rb').camelize.constantize.new.instance_eval do |crawler|
     puts "#{line_name}: crawling..."
-    crawl
+    make_screen_shots
+
     puts "#{line_name}: create index.html..."
     make_html
 
