@@ -9,31 +9,17 @@ bucket = s3.bucket(ENV['BUCKET'])
 
 Dir[File.expand_path('./crawler/*.rb')].each do |path|
   require path
-  File.basename(path, '.rb').camelize.constantize.new.instance_eval do |crawler|
-    puts "#{line_name}: crawling..."
-    make_screen_shots
+  File.basename(path, '.rb').camelize.constantize.new(bucket).instance_eval do |crawler|
+    puts "#{line_name}: make_screenshots..."
+    make_screenshots
+
+    puts "#{line_name}: upload_screenshots..."
+    upload_screenshots
 
     puts "#{line_name}: create index.html..."
     make_html
 
     puts "#{line_name}: upload index.html..."
-    File.open(File.join(tmpdir, 'index.html'), 'r') do |file|
-      bucket.put_object(
-        key: "#{line_name}/index.html",
-        body: file,
-        acl: 'public-read'
-      )
-    end
-
-    filelist.each do |path|
-      puts "#{line_name}: upload #{File.basename(path)}..."
-      File.open(path, 'r') do |file|
-        bucket.put_object(
-          key: "#{line_name}/#{File.basename(path)}",
-          body: file,
-          acl: 'public-read'
-        )
-      end
-    end
+    upload_html
   end
 end

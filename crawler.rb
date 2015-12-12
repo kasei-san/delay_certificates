@@ -2,14 +2,16 @@ require "selenium-webdriver"
 require "slim"
 
 class Crawler
+  attr_reader :bucket
   class ParseError < StandardError; end
 
-  def initialize
+  def initialize(bucket)
+    @bucket = bucket
     @driver = Selenium::WebDriver.for(:phantomjs)
     FileUtils.mkdir_p(tmpdir)
   end
 
-  def make_screen_shots
+  def make_screenshots
     crawl.each do |(filename, uri)|
       puts filename
       @driver.get(uri.to_s)
@@ -19,18 +21,41 @@ class Crawler
     end
   end
 
+  def upload_screenshots
+    Dir.glob(File.join(__dir__, 'tmp', line_name, '*.png')).each do |path|
+      puts "#{line_name}: upload #{File.basename(path)}..."
+      File.open(path, 'r') do |file|
+        bucket.put_object(
+          key: "#{line_name}/#{File.basename(path)}",
+          body: file,
+          acl: 'public-read'
+        )
+      end
+    end
+  end
+
   def make_html
     File.open(File.join(tmpdir, 'index.html'), 'w') do |file|
       file.puts Slim::Template.new('crawl_result.slim').render(self)
     end
   end
 
-  def tmpdir
-    File.join(__dir__, 'tmp', line_name)
+  def upload_html
+    File.open(File.join(tmpdir, 'index.html'), 'r') do |file|
+      bucket.put_object(
+        key: "#{line_name}/index.html",
+        body: file,
+        acl: 'public-read'
+      )
+    end
   end
 
-  def filelist
-    Dir.glob(File.join(__dir__, 'tmp', line_name, '*.png'))
+  def bucketed_screenshots
+    bucket.objects.map{ |obj| File.basename(obj.key) }.delete_if{ |name| name =~ /index.html/ }.sort.reverse
+  end
+
+  def tmpdir
+    File.join(__dir__, 'tmp', line_name)
   end
 
   def line_name
