@@ -27,7 +27,7 @@ class Odakyu < Crawler
 
       p filename
 
-      @driver.get(uri)
+      @driver.get(uri.to_s)
       @driver.save_screenshot(File.join(tmpdir, filename))
     end
   end
