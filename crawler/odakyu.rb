@@ -25,7 +25,7 @@ class Odakyu < Crawler
       filename = filename.join('_')+'.png'
       filename = filename.sub('初電', '0000').sub('終電', '9999')
 
-      p filename
+      puts filename
 
       @driver.get(uri.to_s)
       @driver.save_screenshot(File.join(tmpdir, filename))

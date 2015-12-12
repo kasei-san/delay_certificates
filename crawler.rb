@@ -20,7 +20,7 @@ class Crawler
   end
 
   def filelist
-    Dir.glob(File.join(__dir__, 'tmp', line_name, '*.png')).map{|f| File.basename(f)}.sort.reverse
+    Dir.glob(File.join(__dir__, 'tmp', line_name, '*.png'))
   end
 
   def line_name

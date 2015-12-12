@@ -6,7 +6,7 @@ html
 
   body
     h1 = line_name
-    - filelist.each do |file|
+    - filelist.map{|f| File.basename(f)}.sort.reverse.each do |file|
         ul
           li
             a href = file #{file}
