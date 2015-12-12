@@ -9,8 +9,7 @@ class Odakyu < Crawler
   def crawl
     URI.parse(BASE_URI).read.scan(%r|certificate\d+.html|).sort.uniq.map do |path|
       uri = URI.join(BASE_URI, path)
-      html = NKF.nkf('-w', uri.read)
-      text = html.gsub(/<[^<]+>/,'').gsub(/\s+/, ' ')
+      text = NKF.nkf('-w', uri.read).gsub(/<[^<]+>/,'').gsub(/\s+/, ' ')
       filename = []
 
       unless match = /遅延発生日 : (?<year>\d+)年(?<month>\d+)月(?<date>\d+)日/.match(text)
@@ -22,6 +21,7 @@ class Odakyu < Crawler
         raise ParseError, '遅延時間帯を取得できませんでした'
       end
       filename << [match[:start], match[:end]].map{|v| v.sub(':', '')}.join('-')
+
       unless match = /上下区分 : (?<updown>[^ ]+)/.match(text)
         raise ParseError, '上下区分を取得できませんでした'
       end
