@@ -36,3 +36,7 @@ bundle exec main.rb
 1. 各遅延証明書のURLと日時を配列で返す `#crawl` メソッドを作成する
 
 _crawler/odakyu.rb を参考にしてね_
+
+# Herokuで動作させたい!
+
+こちらを参照 -> [memo.md](https://github.com/kasei-san/delay_certificates/blob/master/memo.md)
