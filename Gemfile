@@ -5,3 +5,4 @@ ruby '2.2.3'
 
 gem "selenium-webdriver"
 gem "activesupport"
+gem "slim"
