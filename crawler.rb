@@ -25,15 +25,9 @@ class Crawler
   end
 
   def upload_screenshots
-    Dir.glob(File.join(__dir__, 'tmp', line_name, "*#{SCREENSHOT_EXT}")).each do |path|
-      puts "#{line_name}: upload #{File.basename(path)}..."
-      File.open(path, 'r') do |file|
-        bucket.put_object(
-          key: "#{line_name}/#{File.basename(path)}",
-          body: file,
-          acl: 'public-read'
-        )
-      end
+    Dir.glob(File.join(tmpdir, "*#{SCREENSHOT_EXT}")).map{ |path| File.basename(path) }.each do |name|
+      puts "#{line_name}: upload #{name}..."
+      upload_s3(File.basename(name))
     end
   end
 
@@ -44,24 +38,31 @@ class Crawler
   end
 
   def upload_html
-    File.open(File.join(tmpdir, 'index.html'), 'r') do |file|
+    upload_s3('index.html')
+  end
+
+  def bucketed_screenshots
+    bucket.objects
+      .map{ |obj| File.basename(obj.key) }
+      .select{ |name| File.extname(name) == SCREENSHOT_EXT }.sort.reverse
+  end
+
+  def line_name
+    self.class.to_s.underscore
+  end
+
+  private
+  def upload_s3(name)
+    File.open(File.join(tmpdir, name), 'r') do |file|
       bucket.put_object(
-        key: "#{line_name}/index.html",
+        key: "#{line_name}/#{name}",
         body: file,
         acl: 'public-read'
       )
     end
   end
 
-  def bucketed_screenshots
-    bucket.objects.map{ |obj| File.basename(obj.key) }.select{ |name| File.extname(name) == SCREENSHOT_EXT }.sort.reverse
-  end
-
   def tmpdir
     File.join(__dir__, 'tmp', line_name)
-  end
-
-  def line_name
-    self.class.to_s.underscore
   end
 end
