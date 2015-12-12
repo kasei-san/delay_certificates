@@ -27,7 +27,7 @@ class Odakyu < Crawler
       end
       filename << (match[:updown] =~ /上/ ? 'nobori' : 'kudari')
 
-      filename = filename.join('_').sub('初電', '0000').sub('終電', '9999')
+      filename = filename.join('_').sub('初電', '0000').sub('終電', '2359')
       [filename, uri.to_s]
     end
   end
